@@ -32,6 +32,17 @@ sandwich_diags = [
     (Box('Bob', Ty(), n) @ Box('Claire', Ty(), n)) >> Box('hates', n @ n, n @ n)
 ]
 
+def _copular_tree():
+    return PregroupTreeNode('is', 1, Ty('s'), children=[
+        PregroupTreeNode('He', 0, n),
+        PregroupTreeNode('', 2, n, children=[
+            PregroupTreeNode('very', 3, n, children=[
+                PregroupTreeNode('talented', 4, n @ n.l),
+                PregroupTreeNode('programmer', 5, n)
+            ])
+        ])
+    ])
+
 
 class MockBobcatParser(BobcatParser):
     def __init__(self):
@@ -98,3 +109,15 @@ def test_discocirc_reader_w_different_parsers(monkeypatch):
     parser.sentence2diagram.assert_called_once_with(
         sentence, tokenised=True,
     )
+
+
+def test_sandwich_prefers_local_head_noun():
+    parser = MockBobcatParser()
+    r = DisCoCircReader(parser=parser,
+                        coref_resolver=MockCorefResolver())
+
+    tree = _copular_tree()
+    _, nouns, nids, _ = r._tree2sandwiches_rec(tree, pruned_ids=set())
+
+    assert [box.name for box in nouns] == ['He', 'programmer']
+    assert nids == [0, 5]

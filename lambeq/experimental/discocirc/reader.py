@@ -174,11 +174,19 @@ class DisCoCircReader(Reader):
             noun_box = Box(node.word, Ty(), NOUN)
             return Id(NOUN), [noun_box], [node.ind], node.ind
 
+        if not isinstance(pruned_ids, set):
+            pruned_ids = set(pruned_ids)
+
         subdiags = []
         nouns = []
         noun_inds = []
         noun2wire = {}
         noun_cursor = previous_noun
+
+        if node.typ == NOUN and node.children:
+            local_head = self._find_head_noun(node, pruned_ids)
+            if local_head is not None:
+                noun_cursor = local_head
 
         bigdiag = Id()
 
@@ -213,6 +221,12 @@ class DisCoCircReader(Reader):
 
                 ancilla_nouns = ancilla_nouns - {noun2wire[nid]}
                 wire_ids.append(noun2wire[nid])
+                if noun2wire.get(nid) is not None:
+                    idx = noun2wire[nid]
+                    if (idx < len(nouns)
+                            and c_nouns[j].name
+                            and not nouns[idx].name):
+                        nouns[idx] = c_nouns[j]
 
             wire_ids = list(sorted(ancilla_nouns))+wire_ids
 
@@ -261,6 +275,19 @@ class DisCoCircReader(Reader):
                             bigdiag.cod)
 
         return bigdiag, nouns, noun_inds, noun_cursor
+
+    def _find_head_noun(self, node, pruned_ids: set[int]) -> int | None:
+        if node.typ == NOUN and not node.children:
+            if node.ind in pruned_ids:
+                return None
+            return node.ind
+
+        for child in node.children:
+            head = self._find_head_noun(child, pruned_ids)
+            if head is not None:
+                return head
+
+        return None
 
     def _get_index(self, s, pnoun):
         for j, w in enumerate(s):
