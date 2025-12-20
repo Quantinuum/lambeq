@@ -24,6 +24,7 @@ ROOT_INDEX = -1
 
 class PregroupTreeNodeError(Exception):
     def __init__(self, sentence: str) -> None:
+        super().__init__(sentence)
         self.sentence = sentence
 
     def __str__(self) -> str:

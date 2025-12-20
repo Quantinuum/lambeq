@@ -45,6 +45,7 @@ from lambeq.typing import StrPathT
 
 class OncillaParseError(Exception):
     def __init__(self, sentence: str, reason: str = '') -> None:
+        super().__init__(sentence, reason)
         self.sentence = sentence
         self.reason = reason
 

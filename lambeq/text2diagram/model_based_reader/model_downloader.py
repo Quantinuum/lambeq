@@ -42,6 +42,7 @@ HEADERS = {'user-agent': ''}
 
 class ModelDownloaderError(Exception):
     def __init__(self, error_msg: str) -> None:
+        super().__init__(error_msg)
         self.error_msg = error_msg
 
     def __str__(self) -> str:
@@ -87,7 +88,10 @@ class ModelDownloader:
     def get_url(self) -> str:
         """Get URL for the latest version of specified model."""
 
-        return f'{MODELS_URL}/{self.model}/latest'
+        model_path = self.model
+        if self.model == 'bobcat':
+            model_path = 'bert'
+        return f'{MODELS_URL}/{model_path}/latest'
 
     def get_dir(self,
                 cache_dir: StrPathT | None = None) -> Path:
@@ -125,6 +129,13 @@ class ModelDownloader:
         try:
             with open(self.model_dir / VERSION_FNAME) as f:
                 local_version = f.read().strip()
+        except FileNotFoundError:
+            # Fallback: Check for nested directory (e.g. bobcat/bobcat)
+            try:
+                with open(self.model_dir / self.model / VERSION_FNAME) as f:
+                    local_version = f.read().strip()
+            except Exception:
+                local_version = None
         except Exception:
             local_version = None
 
@@ -137,6 +148,14 @@ class ModelDownloader:
          and then extract the model to `model_dir`"""
 
         if self.remote_version is None:
+            if self.get_local_model_version() is not None:
+                print('Failed to retrieve remote model version. '
+                      'Using local model.', file=sys.stderr)
+                # Check if model is in nested directory and update path
+                nested_dir = self.model_dir / self.model
+                if nested_dir.exists() and (nested_dir / 'config.json').exists():
+                    self.model_dir = nested_dir
+                return
             raise self.version_retrieval_error
 
         expected_checksum = self._get_remote_checksum()

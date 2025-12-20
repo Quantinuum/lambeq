@@ -66,9 +66,10 @@ logging.getLogger('depccg.lang').setLevel(logging.ERROR)
 
 class DepCCGParseError(Exception):
     def __init__(self, sentence: str) -> None:
+        super().__init__(sentence)
         self.sentence = sentence
 
-    def __str__(self) -> str:  # pragma: no cover
+    def __str__(self) -> str:
         return f'depccg failed to parse: "{self.sentence!r}".'
 
 

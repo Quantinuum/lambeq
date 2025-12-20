@@ -40,10 +40,11 @@ SERVICE_URLS = {
 
 class WebParseError(OSError):
     def __init__(self, sentence: str) -> None:
+        super().__init__(sentence)
         self.sentence = sentence
 
     def __str__(self) -> str:
-        return (f'Web parser could not parse {repr(self.sentence)}')
+        return f'Web parser could not parse {repr(self.sentence)}'
 
 
 class WebParser(CCGParser):

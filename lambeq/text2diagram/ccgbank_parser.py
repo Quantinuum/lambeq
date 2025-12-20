@@ -58,6 +58,7 @@ class CCGBankParseError(Exception):
         else:
             self.sentence = ''
             self.message = sentence
+        super().__init__(sentence, message)
 
     def __str__(self) -> str:
         if self.sentence:
