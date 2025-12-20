@@ -52,6 +52,7 @@ class CCGBankParseError(Exception):
     """Error raised if parsing fails in CCGBank."""
 
     def __init__(self, sentence: str = '', message: str = '') -> None:
+        super().__init__(sentence, message)
         if message:
             self.sentence = sentence
             self.message = message

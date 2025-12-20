@@ -42,6 +42,7 @@ HEADERS = {'user-agent': ''}
 
 class ModelDownloaderError(Exception):
     def __init__(self, error_msg: str) -> None:
+        super().__init__(error_msg)
         self.error_msg = error_msg
 
     def __str__(self) -> str:
