@@ -2,7 +2,7 @@ import tarfile
 from urllib.request import urlretrieve
 from depccg.instance_models import MODEL_DIRECTORY
 
-URL = 'https://qnlp.cambridgequantum.com/models/tri_headfirst.tar.gz'
+URL = 'https://qnlp.quantinuum.com/models/tri_headfirst.tar.gz'
 
 print('Please consider using Bobcat, the parser included with lambeq,\n'
       'instead of depccg.')

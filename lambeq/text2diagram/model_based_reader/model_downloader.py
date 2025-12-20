@@ -31,7 +31,7 @@ from tqdm.auto import tqdm
 from lambeq.core.globals import VerbosityLevel
 from lambeq.typing import StrPathT
 
-MODELS_URL = 'https://qnlp.cambridgequantum.com/models'
+MODELS_URL = 'https://qnlp.quantinuum.com/models'
 MODELS = {'bobcat', 'oncilla'}
 VERSION_FNAME = 'version.txt'
 CHECKSUM_FNAME = 'model_checksum.sha256'
