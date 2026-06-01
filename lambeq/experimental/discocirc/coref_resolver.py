@@ -31,7 +31,7 @@ CorefDataT = list[list[list[int]]]
 
 
 class CoreferenceResolver(ABC):
-    """Class implementing corefence resolution."""
+    """Class implementing coreference resolution."""
 
     @abstractmethod
     def tokenise_and_coref(
@@ -98,7 +98,7 @@ class CoreferenceResolver(ABC):
 
 
 class MaverickCoreferenceResolver(CoreferenceResolver):
-    """Corefence resolution and tokenisation based on Maverick
+    """Coreference resolution and tokenisation based on Maverick
     (https://github.com/sapienzanlp/maverick-coref)."""
 
     def __init__(
@@ -167,7 +167,7 @@ class MaverickCoreferenceResolver(CoreferenceResolver):
 
 
 class SpacyCoreferenceResolver(CoreferenceResolver):
-    """Corefence resolution and tokenisation based on spaCy."""
+    """Coreference resolution and tokenisation based on spaCy."""
 
     def __init__(self):
         # Create basic tokenisation pipeline, for POS

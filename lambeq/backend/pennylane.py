@@ -162,7 +162,7 @@ def to_pennylane(diagram: Diagram,
         Probabilities can be used with more PennyLane backpropagation
         methods.
     backend_config : dict, default: None
-        A dictionary of PennyLane backend configration options,
+        A dictionary of PennyLane backend configuration options,
         including the provider (e.g. IBM or Honeywell), the device,
         the number of shots, etc. See the `PennyLane plugin
         documentation <https://pennylane.ai/plugins/>`_
