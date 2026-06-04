@@ -435,13 +435,13 @@ class Diagram(tensor.Diagram):
 
         Parameters
         ----------
-        probabilties : bool, default: False
+        probabilities : bool, default: False
             If True, the PennylaneCircuit will return the normalized
-            probabilties of measuring the computational basis states
+            probabilities of measuring the computational basis states
             when run. If False, it returns the unnormalized quantum
             states in the computational basis.
         backend_config : dict, default: None
-            A dictionary of PennyLane backend configration options,
+            A dictionary of PennyLane backend configuration options,
             including the provider (e.g. IBM or Honeywell), the device,
             the number of shots, etc. See the `PennyLane plugin
             documentation <https://pennylane.ai/plugins/>`_
