@@ -83,7 +83,7 @@ class NumpyModel(QuantumModel):
                   tn.DefaultBackend('jax')):
                 sub_circuit = self._fast_subs([diagram], x)[0]
                 result = tn.contractors.auto(*sub_circuit.to_tn()).tensor
-                # square amplitudes to get probabilties for pure circuits
+                # square amplitudes to get probabilities for pure circuits
                 assert isinstance(sub_circuit, Circuit)
                 if not sub_circuit.is_mixed:
                     result = backend.abs(result) ** 2
@@ -141,7 +141,7 @@ class NumpyModel(QuantumModel):
         for d in diagrams:
             assert isinstance(d, Circuit)
             result = tn.contractors.auto(*d.to_tn()).tensor
-            # square amplitudes to get probabilties for pure circuits
+            # square amplitudes to get probabilities for pure circuits
             if not d.is_mixed:
                 result = np.abs(result) ** 2
             results.append(self._normalise_vector(result))
