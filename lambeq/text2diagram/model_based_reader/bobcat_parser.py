@@ -48,6 +48,7 @@ from lambeq.typing import StrPathT
 
 class BobcatParseError(Exception):
     def __init__(self, sentence: str) -> None:
+        super().__init__(sentence)
         self.sentence = sentence
 
     def __str__(self) -> str:
