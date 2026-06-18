@@ -174,7 +174,7 @@ class PytorchTrainer(Trainer):
         with torch.no_grad():
             y_hat = self.model(x)
             loss = self.loss_function(y_hat, y.to(self.device))
-        return y_hat, loss.item()
+        return y_hat.detach(), loss.item()
 
     def training_step(
             self,
@@ -196,8 +196,9 @@ class PytorchTrainer(Trainer):
         x, y = batch
         y_hat = self.model(x)
         loss = self.loss_function(y_hat, y.to(self.device))
-        self.train_costs.append(loss.item())
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
-        return y_hat, loss.item()
+        loss_item = loss.item()
+        self.train_costs.append(loss_item)
+        return y_hat.detach(), loss_item
