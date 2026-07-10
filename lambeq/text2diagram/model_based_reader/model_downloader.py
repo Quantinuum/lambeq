@@ -31,7 +31,12 @@ from tqdm.auto import tqdm
 from lambeq.core.globals import VerbosityLevel
 from lambeq.typing import StrPathT
 
-MODELS_URL = 'https://qnlp.cambridgequantum.com/models'
+#: Default base URL for downloading pre-trained models. Can be overridden at
+#: runtime via the ``LAMBEQ_MODELS_URL`` environment variable, letting users
+#: point at a mirror or an updated host without waiting for a new release.
+DEFAULT_MODELS_URL = 'https://qnlp.cambridgequantum.com/models'
+#: Environment variable used to override :data:`DEFAULT_MODELS_URL`.
+MODELS_URL_ENV_VAR = 'LAMBEQ_MODELS_URL'
 MODELS = {'bobcat', 'oncilla'}
 VERSION_FNAME = 'version.txt'
 CHECKSUM_FNAME = 'model_checksum.sha256'
@@ -85,9 +90,14 @@ class ModelDownloader:
             self.remote_version = None
 
     def get_url(self) -> str:
-        """Get URL for the latest version of specified model."""
+        """Get URL for the latest version of specified model.
 
-        return f'{MODELS_URL}/{self.model}/latest'
+        The base URL is taken from the ``LAMBEQ_MODELS_URL`` environment
+        variable if set, otherwise :data:`DEFAULT_MODELS_URL`.
+        """
+
+        base_url = os.environ.get(MODELS_URL_ENV_VAR, DEFAULT_MODELS_URL)
+        return f'{base_url.rstrip("/")}/{self.model}/latest'
 
     def get_dir(self,
                 cache_dir: StrPathT | None = None) -> Path:
