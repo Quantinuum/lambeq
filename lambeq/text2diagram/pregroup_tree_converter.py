@@ -243,7 +243,7 @@ def remove_cycles(root: PregroupTreeNode) -> None:
     root_node = nodes[root_word_idx][0]
 
     # Remove nodes that cycles to itself
-    # (see https://github.com/CQCL/lambeq/issues/180)
+    # (see https://github.com/quantinuum/lambeq/issues/180)
     root_node.remove_self_cycles()
 
     for _, nodes_for_idx in enumerate(nodes):
