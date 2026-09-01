@@ -1,7 +1,7 @@
 # λambeq
 
-![Build status](https://github.com/CQCL/lambeq/actions/workflows/build_test.yml/badge.svg)
-[![License](https://img.shields.io/github/license/CQCL/lambeq)](LICENSE)
+![Build status](https://github.com/quantinuum/lambeq/actions/workflows/build_test.yml/badge.svg)
+[![License](https://img.shields.io/github/license/quantinuum/lambeq)](LICENSE)
 [![PyPI version](https://img.shields.io/pypi/v/lambeq)](//pypi.org/project/lambeq)
 [![PyPI downloads](https://img.shields.io/pypi/dm/lambeq)](//pypi.org/project/lambeq)
 [![arXiv](https://img.shields.io/badge/arXiv-2110.04236-green)](//arxiv.org/abs/2110.04236)
@@ -58,11 +58,11 @@ python contrib/download_depccg_model.py
 
 ## Usage
 
-The [docs/examples](//github.com/CQCL/lambeq-docs/tree/main/docs/examples)
-directory in lambeq's [documentation repository](https://github.com/CQCL/lambeq-docs) contains notebooks demonstrating usage of the various tools in lambeq.
+The [docs/examples](//github.com/quantinuum/lambeq-docs/tree/main/docs/examples)
+directory in lambeq's [documentation repository](https://github.com/quantinuum/lambeq-docs) contains notebooks demonstrating usage of the various tools in lambeq.
 
 Example - parsing a sentence into a diagram (see
-[docs/examples/parser.ipynb](//github.com/CQCL/lambeq-docs/blob/main/docs/examples/parser.ipynb)):
+[docs/examples/parser.ipynb](//github.com/quantinuum/lambeq-docs/blob/main/docs/examples/parser.ipynb)):
 
 ```python
 from lambeq import BobcatParser

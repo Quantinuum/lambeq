@@ -9,7 +9,7 @@ The DisCoCirc framework was first introduced in the paper [\[Coe10\]](https://ar
 Installing the experimental subpackage requires Python 3.10.
 
 ```bash
-git clone git@github.com:CQCL/lambeq.git
+git clone git@github.com:quantinuum/lambeq.git
 cd lambeq
 pip install ".[experimental]"
 ```
