@@ -3,6 +3,7 @@ import time
 
 import torch
 import numpy as np
+import pytest
 
 from lambeq.backend.grammar import Cup, Id, Word
 from lambeq.backend.tensor import Dim
@@ -36,7 +37,8 @@ train_circuits = [ansatz(d) for d in train_diagrams]
 dev_circuits = [ansatz(d) for d in dev_diagrams]
 
 
-def test_trainer(tmp_path):
+@pytest.mark.parametrize("scheduler", [None, torch.optim.lr_scheduler.StepLR])
+def test_trainer(tmp_path, scheduler):
     model = PytorchModel.from_diagrams(train_circuits + dev_circuits)
 
     log_dir = tmp_path / 'test_runs'
@@ -45,6 +47,8 @@ def test_trainer(tmp_path):
         model=model,
         loss_function=torch.nn.BCEWithLogitsLoss(),
         optimizer=torch.optim.AdamW,
+        scheduler=scheduler,
+        scheduler_args={"step_size": 1, "gamma": 0.1},
         learning_rate=3e-3,
         epochs=EPOCHS,
         evaluate_functions={"acc": acc},
@@ -66,6 +70,12 @@ def test_trainer(tmp_path):
     assert len(trainer.train_durations) == EPOCHS * (
         ceil(len(train_diagrams) / train_dataset.batch_size))
     assert len(trainer.val_durations) == EPOCHS
+    if scheduler is not None:
+        # Expect lr to have decayed exactly once, up to float error = 0.1 * 3e-3
+        assert torch.allclose(
+            torch.tensor(trainer.scheduler.get_last_lr()),
+            torch.tensor(3e-4)
+        )
 
 
 def test_restart_training(tmp_path):

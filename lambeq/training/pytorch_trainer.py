@@ -42,10 +42,13 @@ class PytorchTrainer(Trainer):
                  loss_function: Callable[..., torch.Tensor],
                  epochs: int,
                  optimizer: type[torch.optim.Optimizer] = torch.optim.AdamW,
+                 scheduler: type[torch.optim.lr_scheduler.LRScheduler] | None
+                 = None,
                  learning_rate: float = 1e-3,
                  device: int = -1,
                  *,
                  optimizer_args: dict[str, Any] | None = None,
+                 scheduler_args: dict[str, Any] | None = None,
                  evaluate_functions: Mapping[str, EvalFuncT] | None = None,
                  evaluate_on_train: bool = True,
                  use_tensorboard: bool = False,
@@ -66,6 +69,9 @@ class PytorchTrainer(Trainer):
             Number of training epochs.
         optimizer : torch.optim.Optimizer, default: torch.optim.AdamW
             A PyTorch optimizer from `torch.optim`.
+        scheduler : torch.optim.lr_scheduler, default: None
+            A PyTorch scheduler for the learning rate, from
+            `torch.optim.lr_scheduler`.
         learning_rate : float, default: 1e-3
             The learning rate provided to the optimizer for training.
         device : int, default: -1
@@ -73,6 +79,8 @@ class PytorchTrainer(Trainer):
             A negative value uses the CPU.
         optimizer_args : dict of str to Any, optional
             Any extra arguments to pass to the optimizer.
+        scheduler_args : dict of str to Any, optional
+            Any extra arguments to pass to the scheduler.
         evaluate_functions : mapping of str to callable, optional
             Mapping of evaluation metric functions from their names.
             Structure [{"metric": func}].
@@ -118,6 +126,11 @@ class PytorchTrainer(Trainer):
         if learning_rate is not None:
             optimizer_args['lr'] = learning_rate
         self.optimizer = optimizer(self.model.parameters(), **optimizer_args)
+
+        scheduler_args = dict(scheduler_args or {})
+        self.scheduler = (scheduler(self.optimizer, **scheduler_args)
+                          if scheduler is not None else None)
+
         self.model.to(self.device)
 
     def _add_extra_checkpoint_info(self, checkpoint: Checkpoint) -> None:
@@ -136,7 +149,10 @@ class PytorchTrainer(Trainer):
         """
         checkpoint.add_many(
             {'torch_random_state': torch.get_rng_state(),
-             'optimizer_state_dict': self.optimizer.state_dict()})
+             'optimizer_state_dict': self.optimizer.state_dict(),
+             'scheduler_state_dict': self.scheduler.state_dict()
+                if self.scheduler is not None
+                else None})
 
     def _load_extra_checkpoint_info(self, checkpoint: Checkpoint) -> None:
         """Load additional checkpoint information.
@@ -152,6 +168,9 @@ class PytorchTrainer(Trainer):
         """
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         torch.set_rng_state(checkpoint['torch_random_state'])
+        if (checkpoint['scheduler_state_dict'] is not None
+                and self.scheduler is not None):
+            self.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
 
     def validation_step(
             self,
@@ -201,3 +220,13 @@ class PytorchTrainer(Trainer):
         loss.backward()
         self.optimizer.step()
         return y_hat, loss.item()
+
+    def post_epoch_step(self, epoch: int, loss: float):
+        # Step the scheduler if present
+        if self.scheduler is not None:
+            # Plateau scheduler wants to know about the loss
+            if isinstance(self.scheduler,
+                          torch.optim.lr_scheduler.ReduceLROnPlateau):
+                self.scheduler.step(loss, epoch=epoch)
+            else:
+                self.scheduler.step(epoch=epoch)
