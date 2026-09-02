@@ -3,9 +3,11 @@ from unittest import mock
 
 from lambeq import VerbosityLevel
 from lambeq.text2diagram.model_based_reader.model_downloader import (
+    DEFAULT_MODELS_URL,
     ModelDownloader,
     ModelDownloaderError,
-    MODELS
+    MODELS,
+    MODELS_URL_ENV_VAR,
 )
 
 
@@ -46,6 +48,18 @@ invalid_extraction_params = {'status_code': 200,
 def test_invalid_model_name():
     with pytest.raises(ValueError):
         downloader = ModelDownloader('incorrect model name')
+
+
+def test_default_models_url():
+    downloader = ModelDownloader('bobcat')
+    assert downloader.model_url == f'{DEFAULT_MODELS_URL}/bobcat/latest'
+
+
+def test_models_url_env_override(monkeypatch):
+    monkeypatch.setenv(MODELS_URL_ENV_VAR, 'https://mirror.example.com/models/')
+    downloader = ModelDownloader('bobcat')
+    # The override is honoured and a trailing slash is not doubled.
+    assert downloader.model_url == 'https://mirror.example.com/models/bobcat/latest'
 
 
 def test_invalid_url():
