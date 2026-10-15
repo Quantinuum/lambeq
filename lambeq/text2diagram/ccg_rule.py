@@ -27,6 +27,7 @@ from lambeq.text2diagram.ccg_type import CCGType
 class CCGRuleUseError(Exception):
     """Error raised when a :py:class:`CCGRule` is applied incorrectly."""
     def __init__(self, rule: CCGRule, message: str) -> None:
+        super().__init__(rule, message)
         self.rule = rule
         self.message = message
 

@@ -262,38 +262,32 @@ class DisCoCircReader(Reader):
 
         return bigdiag, nouns, noun_inds, noun_cursor
 
-    def _get_index(self, s, pnoun):
-        for j, w in enumerate(s):
-            if w == pnoun:
-                return j
-        return -1
-
     def _prune_indices(self,
                        sentences,
-                       corefs,
-                       pruned_nouns: Iterable[str] = ()):
-        initial_ids = []
+                       corefd,
+                       pruned_nouns: Iterable[str] = (),
+                       min_noun_freq: int = 1) -> list[set[int]]:
+        """
+        Entities are pruned if they are referenced fewer times than
+        `min_noun_freq`, or if any of their mentions is a word in
+        `pruned_nouns`. Entities are identified by position, so other
+        entities with the same surface form are unaffected.
 
-        pruned_ids = [[] for _ in sentences]
-        # Find first coref of each pruned noun
-        for pnoun in pruned_nouns:
-            for i, s in enumerate(sentences):
-                j = self._get_index(s, pnoun)
-                if j != -1:
-                    initial_ids.append((i, j))
-                    break
-
-        for i, j in initial_ids:
-            pruned_ids[i].append(j)
-            for p in corefs:
-                if i >= len(p):
-                    break
-                elif j in p[i]:
-                    for h, hword in enumerate(p):
-                        if len(hword) > 0 and h != i:
-                            pruned_ids[h].append(hword[0])
-                    break
-
+        """
+        pruned_nouns = set(pruned_nouns)
+        noun_counts = Counter(corefd.values())
+        pruned_entities = {nid for nid, count in noun_counts.items()
+                           if count < min_noun_freq}
+        pruned_ids: list[set[int]] = [set() for _ in sentences]
+        for i, sentence in enumerate(sentences):
+            for j, word in enumerate(sentence):
+                if word in pruned_nouns:
+                    pruned_ids[i].add(j)
+                    if (i, j) in corefd:
+                        pruned_entities.add(corefd[i, j])
+        for (i, j), nid in corefd.items():
+            if nid in pruned_entities:
+                pruned_ids[i].add(j)
         return pruned_ids
 
     def text2circuit(self,
@@ -323,9 +317,9 @@ class DisCoCircReader(Reader):
         pruned_nouns : iterable of strings, default: ()
             If any of the nouns in this list are present in the diagram,
             the corresponding state and wire are removed from the
-            diagram.
+            diagram, alongside every noun coreferent with them.
         min_noun_freq: int, default: 1
-            Mininum number of times a noun needs to be referenced to
+            Mininum number of times an entity needs to be referenced to
             appear in the circuit.
         rewrite_rules : list of `TreeRewriteRule` or str
             List of rewrite rules to apply to the pregroup tree
@@ -345,14 +339,8 @@ class DisCoCircReader(Reader):
         sentences, corefs = self.coref_resolver.tokenise_and_coref(text)
         corefd = self.coref_resolver.dict_from_corefs(corefs)
 
-        noun_counts = Counter(corefd.values())
-        freq_pruned_ids = [nid for nid, count in noun_counts.items()
-                           if count < min_noun_freq]
-
-        pruned_nouns = set(pruned_nouns).union(
-                        {sentences[i][j] for (i, j) in freq_pruned_ids})
-
-        pruned_ids = self._prune_indices(sentences, corefs, pruned_nouns)
+        pruned_ids = self._prune_indices(sentences, corefd, pruned_nouns,
+                                         min_noun_freq)
 
         rewriter = TreeRewriter(rewrite_rules)
 

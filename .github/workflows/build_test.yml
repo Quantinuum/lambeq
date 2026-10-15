@@ -22,13 +22,14 @@ jobs:
     outputs:
       error-check: ${{ steps.error-check.conclusion }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install linter
-      run: python -m pip install flake8 flake8-broken-line flake8-bugbear flake8-copyright flake8-import-order flake8-quotes
+      # pinned so that new linter releases cannot break CI unannounced
+      run: python -m pip install flake8==7.4.1 flake8-broken-line==1.0.0 flake8-bugbear==26.9.30 flake8-copyright==0.2.4 flake8-import-order==0.19.2 flake8-quotes==3.4.0
     - name: Check for errors
       id: error-check
       run:
@@ -50,9 +51,9 @@ jobs:
       matrix:
         python-version: [ "3.10", "3.11", "3.12" ]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install base package
@@ -60,7 +61,8 @@ jobs:
     - name: Check package import works
       run: python -c 'import lambeq'
     - name: Install extra dependencies and tester
-      run: pip install .[extras,test,experimental]
+      # qiskit-ibm-provider still imports pkg_resources, removed in setuptools 81
+      run: pip install "setuptools<81" .[extras,test,experimental]
     - name: Locate bobcat pre-trained model cache
       id: loc-bobcat-cache
       run: echo "dir=$(python -c 'from lambeq.text2diagram.model_based_reader.model_downloader import ModelDownloader; print(ModelDownloader("bobcat").model_dir)')" >> $GITHUB_OUTPUT
@@ -96,9 +98,9 @@ jobs:
       matrix:
         python-version: [ "3.10", "3.11", "3.12" ]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies with type hints

@@ -362,7 +362,7 @@ class Diagram(tensor.Diagram):
                 if result.shape and post_result.shape:
                     result = np.tensordot(result, post_result, -1)
                 else:
-                    result * post_result
+                    result = result * post_result
             results.append(result)
         return results if len(results) > 1 else results[0]
 

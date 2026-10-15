@@ -98,3 +98,43 @@ def test_discocirc_reader_w_different_parsers(monkeypatch):
     parser.sentence2diagram.assert_called_once_with(
         sentence, tokenised=True,
     )
+
+
+prune_sentences = [['Alice', 'likes', 'it'],
+                   ['it', 'hates', 'it'],
+                   ['Alice', 'sees', 'it']]
+
+# `it` in the first two sentences is one entity, the last `it` is another
+prune_corefs = [[[0], [],     [0]],
+                [[2], [0, 2], []],
+                [[],  [],     [2]]]
+
+
+def _transitive_tree(words):
+    return PregroupTreeNode(words[1], 1, s, children=[
+        PregroupTreeNode(words[0], 0, n),
+        PregroupTreeNode(words[2], 2, n)])
+
+
+@pytest.mark.parametrize('kwargs, expected', [
+    ({'min_noun_freq': 2}, [set(), set(), {2}]),
+    ({'pruned_nouns': ['it']}, [{2}, {0, 2}, {2}]),
+])
+def test_discocirc_reader_pruning(monkeypatch, kwargs, expected):
+    parser = MockOncillaParser()
+    monkeypatch.setattr(
+        parser, '_sentence2pregrouptree',
+        MagicMock(side_effect=[_transitive_tree(w) for w in prune_sentences])
+    )
+    coref_resolver = MockCorefResolver()
+    monkeypatch.setattr(
+        coref_resolver, 'tokenise_and_coref',
+        MagicMock(return_value=(prune_sentences, prune_corefs))
+    )
+
+    r = DisCoCircReader(parser=parser, coref_resolver=coref_resolver)
+    monkeypatch.setattr(r, '_tree2circuital',
+                        MagicMock(wraps=r._tree2circuital))
+
+    r.text2circuit('', **kwargs)
+    assert [set(c.args[2]) for c in r._tree2circuital.call_args_list] == expected
