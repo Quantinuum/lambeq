@@ -394,6 +394,11 @@ class DisCoCircReader(Reader):
                 ancilla_nouns = ancilla_nouns - {noun2wire[nid]}
                 wire_ids.append(noun2wire[nid])
             wire_ids = list(sorted(ancilla_nouns))+wire_ids
+            if not wire_ids:
+                # No nouns survive in this sentence and no wires exist
+                # yet, so it has nothing to act on
+                continue
+
             wire_ids_lookup = {wid: len(wire_ids) - i - 1
                                for i, wid in enumerate(reversed(
                                    sorted(wire_ids)))}

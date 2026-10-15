@@ -98,3 +98,42 @@ def test_discocirc_reader_w_different_parsers(monkeypatch):
     parser.sentence2diagram.assert_called_once_with(
         sentence, tokenised=True,
     )
+
+
+# Waiting for PR #261 (DisCoCirc pruning fix), which adds the
+# `_transitive_tree` helper used below. Once it is merged, replace
+# this comment block with the uncommented code below.
+#
+# def _intransitive_tree(words):
+#     return PregroupTreeNode(words[1], 1, s, children=[
+#         PregroupTreeNode(words[0], 0, n)])
+#
+#
+# def _text2circuit(monkeypatch, trees, sentences, corefs, **kwargs):
+#     parser = MockOncillaParser()
+#     monkeypatch.setattr(parser, '_sentence2pregrouptree',
+#                         MagicMock(side_effect=trees))
+#     coref_resolver = MockCorefResolver()
+#     monkeypatch.setattr(coref_resolver, 'tokenise_and_coref',
+#                         MagicMock(return_value=(sentences, corefs)))
+#     r = DisCoCircReader(parser=parser, coref_resolver=coref_resolver)
+#     return r.text2circuit('', **kwargs)
+#
+#
+# @pytest.mark.parametrize('sandwich', [False, True])
+# def test_discocirc_reader_nounless_first_sentence(monkeypatch, sandwich):
+#     # Pruning every noun of the first sentence should leave the circuit
+#     # of the remaining text, not crash
+#     sentences = [['Alice', 'runs'], ['Bob', 'likes', 'Claire']]
+#     corefs = [[[0], []], [[], [0]], [[], [2]]]
+#     d = _text2circuit(monkeypatch,
+#                       [_intransitive_tree(sentences[0]),
+#                        _transitive_tree(sentences[1])],
+#                       sentences, corefs,
+#                       sandwich=sandwich, pruned_nouns=['Alice'])
+#
+#     expected = _text2circuit(monkeypatch,
+#                              [_transitive_tree(sentences[1])],
+#                              sentences[1:], [[[0]], [[2]]],
+#                              sandwich=sandwich)
+#     assert d == expected
