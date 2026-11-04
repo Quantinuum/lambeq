@@ -30,7 +30,12 @@ from lambeq.backend.grammar import Box, Cap, Cup, Diagram
 class InterchangerError(Exception):
     """ This is raised when we try to interchange conected boxes. """
     def __init__(self, box0: Box, box1: Box) -> None:
-        super().__init__(f'Boxes {box0} and {box1} do not commute.')
+        super().__init__(box0, box1)
+        self.box0 = box0
+        self.box1 = box1
+
+    def __str__(self) -> str:
+        return f'Boxes {self.box0} and {self.box1} do not commute.'
 
 
 def snake_removal(diagram: Diagram, left: bool = False) -> Iterator[Diagram]:

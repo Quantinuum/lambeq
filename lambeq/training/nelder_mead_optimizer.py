@@ -259,7 +259,7 @@ class NelderMeadOptimizer(Optimizer):
                 raise ValueError(
                     'Objective function must return a scalar'
                 ) from e
-        return result   # type: ignore[return-value]
+        return result
 
     def backward(self, batch: tuple[Iterable[Any], np.ndarray]) -> float:
         """Calculate the gradients of the loss function.

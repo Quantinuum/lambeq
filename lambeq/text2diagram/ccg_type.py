@@ -28,6 +28,7 @@ class CCGParseError(Exception):
     """Error when parsing a CCG type string."""
 
     def __init__(self, cat: str, message: str) -> None:
+        super().__init__(cat, message)
         self.cat = cat
         self.message = message
 
