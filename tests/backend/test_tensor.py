@@ -47,6 +47,18 @@ def test_spiderlikes():
     assert cap3.dagger().dagger() == cap3
 
 
+@pytest.mark.parametrize('d', [2, 3, 4])
+def test_cup_cap_basis_correlation(d):
+    dim = Dim(d)
+    cup = Cup(dim, dim)
+    cap = Cap(dim, dim)
+    expected = np.eye(d)
+
+    assert cup.array == pytest.approx(expected)
+    assert cap.array == pytest.approx(expected)
+    assert ((Id(Dim(d)) @ cap) >> (cup @ Id(Dim(d)))).eval() == pytest.approx(expected)
+
+
 def test_functors():
     n, s = grammar.Ty('n'), grammar.Ty('s')
     bxa = grammar.Box("A", n @ n, s)

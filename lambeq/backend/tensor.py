@@ -424,7 +424,11 @@ class Diagram(grammar.Diagram):
 
 @Diagram.register_special_box('cap')
 class Cap(grammar.Cap, Box):
-    """A Cap in the tensor category."""
+    """A Cap in the tensor category.
+
+    Its array correlates every matching basis state for arbitrary atomic
+    leg dimension.
+    """
 
     left: Dim
     right: Dim
@@ -453,10 +457,7 @@ class Cap(grammar.Cap, Box):
 
         super().__init__(left, right)
 
-        arr = np.zeros(left.product ** 2)
-        arr[0] = 1
-        arr[-1] = 1
-        self.data = arr
+        self.data = np.eye(left.product).ravel()
 
     __hash__ = Box.__hash__
     __repr__ = Box.__repr__
@@ -464,7 +465,11 @@ class Cap(grammar.Cap, Box):
 
 @Diagram.register_special_box('cup')
 class Cup(grammar.Cup, Box):
-    """A Cup in the tensor category."""
+    """A Cup in the tensor category.
+
+    Its array correlates every matching basis state for arbitrary atomic
+    leg dimension.
+    """
 
     left: Dim
     right: Dim
@@ -494,10 +499,7 @@ class Cup(grammar.Cup, Box):
 
         super().__init__(left, right)
 
-        arr = np.zeros(left.product ** 2)
-        arr[0] = 1
-        arr[-1] = 1
-        self.data = arr
+        self.data = np.eye(left.product).ravel()
 
     __hash__ = Box.__hash__
     __repr__ = Box.__repr__
